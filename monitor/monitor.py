@@ -16,8 +16,9 @@ def get_cursor():
     try:
         cursor = con.cursor()
         yield cursor
+        con.commit()
     finally:
-        cursor.close()
+        con.close()
 
 
 def create_monitor_tables():
