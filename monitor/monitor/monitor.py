@@ -1,43 +1,31 @@
-import datetime
-import contextlib
 import logging
-import os
-import sqlite3
-import time
+
+from .db import get_connection
 
 logger = logging.getLogger(__name__)
-DB = os.getenv("WG_MONITOR_DB", "./db.sqlite3")
-
-
-@contextlib.contextmanager
-def get_cursor():
-    con = sqlite3.connect(DB)
-
-    try:
-        cursor = con.cursor()
-        yield cursor
-        con.commit()
-    finally:
-        con.close()
 
 
 def create_monitor_tables():
     logger.info("Creating monitoring table if not exists")
-    with get_cursor() as cursor:
-        cursor.execute("""
+    with get_connection() as conn:
+        conn.execute("""
         CREATE TABLE IF NOT EXISTS "monitor" (
             "public_key" varchar(255),
             "receive_bytes" bigint,
             "transmit_bytes" bigint,
             "ts" datetime
-        )""")
+        )
+        """)
+        conn.execute("""
+        CREATE INDEX IF NOT EXISTS monitor_ts ON "monitor" ("ts")
+        """)
 
 
 def make_measure():
     logger.info("Making a measure")
 
-    with get_cursor() as cursor:
-        cursor.execute("""
+    with get_connection() as con:
+        con.execute("""
         INSERT INTO "monitor" (
             "public_key",
             "receive_bytes",
@@ -54,7 +42,12 @@ def make_measure():
         """)
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    create_monitor_tables()
-    make_measure()
+def cleanup():
+
+    logger.info("Performing cleanup")
+
+    with get_connection() as con:
+        con.execute("""
+        DELETE FROM "monitor"
+        WHERE "last_handshake_time" < datetime(CURRENT_TIMESTAMP, '-7 days')
+        """)

@@ -19,12 +19,27 @@ services:
     devices:
       - "/dev/net/tun:/dev/net/tun"
 
+  wg-monitor-cron:
+    build: "./monitor"
+    restart: always
+    depends_on:
+      - wg-access-server
+    container_name: wg-monitor-cron
+    command: 'bash -c "printenv > /etc/environment && cron -f"'
+    volumes:
+      - "wg-access-server-data:/data"
+    environment:
+      - "WG_MONITOR_DB=/data/db.sqlite3"
+
   wg-monitor:
     build: "./monitor"
     restart: always
     depends_on:
       - wg-access-server
     container_name: wg-monitor
+    command: ["gunicorn", "monitor.dashboard:server", "-b", "0.0.0.0:9010"]
+    ports:
+     - "9010:9010"
     volumes:
       - "wg-access-server-data:/data"
     environment:

@@ -1,9 +1,16 @@
-FROM python:3.10-alpine
+FROM python:3.10
 
 WORKDIR /app
-ADD monitor.py /app
 
-COPY crontab /tmp/crontab
-RUN cat /tmp/crontab > /etc/crontabs/root
+RUN apt-get update && apt-get install -y cron vim && apt-get clean
+COPY crontab /etc/cron.d/crontab
+RUN chmod 0644 /etc/cron.d/crontab && crontab /etc/cron.d/crontab
 
-CMD ["crond", "-f", "-l", "2"]
+ADD requirements.txt /app
+RUN pip install -r requirements.txt
+
+ADD monitor /app/monitor
+COPY main.py /app
+
+# CMD ["cron", "-f"]
+# CMD ["python", "-m", "gunicorn", "monitor.dashboard:server", "-b", "0.0.0.0:9010"]

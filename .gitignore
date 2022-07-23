@@ -66,3 +66,7 @@ website/yarn.lock
 __debug_bin
 
 db.sqlite3
+
+.ipynb_checkpoints
+*.ipynb
+__pycache__

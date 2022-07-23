@@ -1,1 +1,2 @@
-* * * * * /usr/local/bin/python /app/monitor.py
+* * * * * /usr/local/bin/python /app/main.py measure > /proc/1/fd/1 2>/proc/1/fd/2
+0 4 * * * /usr/local/bin/python /app/main.py cleanup > /proc/1/fd/1 2>/proc/1/fd/2
