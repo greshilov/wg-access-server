@@ -9,7 +9,7 @@ import pandas as pd
 from .db import get_connection
 
 
-app = Dash(__name__)
+app = Dash(__name__, url_base_pathname='/monitor/')
 app.layout = html.Div(children=[
     html.H1(children="Traffic admin"),
     dcc.Dropdown(["-6 hours", "-1 day", "-7 days"], "-6 hours", id="period"),
