@@ -25,11 +25,11 @@ def create_monitor_tables():
     with get_cursor() as cursor:
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS "monitor" (
-            "owner" varchar(100),
+            "public_key" varchar(255),
             "is_connected" boolean,
             "receive_bytes" bigint,
             "transmit_bytes" bigint,
-            "ts" datetime,
+            "ts" datetime
         )""")
 
 
@@ -39,14 +39,14 @@ def make_measure():
     with get_cursor() as cursor:
         cursor.execute("""
         INSERT INTO "monitor" (
-            "owner",
+            "public_key",
             "is_connected",
             "receive_bytes",
             "transmit_bytes",
             "ts"
         )
         SELECT
-            "owner",
+            "public_key",
             "last_handshake_time" > datetime(CURRENT_TIMESTAMP, '-5 minutes'),
             "receive_bytes",
             "transmit_bytes",
