@@ -49,5 +49,5 @@ def cleanup():
     with get_connection() as con:
         con.execute("""
         DELETE FROM "monitor"
-        WHERE "last_handshake_time" < datetime(CURRENT_TIMESTAMP, '-7 days')
+        WHERE "ts" < datetime(CURRENT_TIMESTAMP, '-7 days')
         """)
